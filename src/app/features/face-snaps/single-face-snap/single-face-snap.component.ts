@@ -8,8 +8,8 @@ import {
   NgStyle,
   TitleCasePipe,
 } from '@angular/common'
-import { FaceSnap } from '../core/models/face-snap.model'
-import { FaceSnapsService } from '../core/services/face-snaps.service'
+import { FaceSnap } from '../../../core/models/face-snap.model'
+import { FaceSnapsService } from '../../../core/services/face-snaps.service'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { Observable, tap } from 'rxjs'
 
