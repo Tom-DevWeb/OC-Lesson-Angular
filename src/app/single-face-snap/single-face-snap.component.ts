@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import {
+  AsyncPipe,
   DatePipe,
   NgClass,
   NgIf,
@@ -7,9 +8,10 @@ import {
   NgStyle,
   TitleCasePipe,
 } from '@angular/common'
-import { FaceSnap } from '../models/face-snap.model'
-import { FaceSnapsService } from '../services/face-snaps.service'
+import { FaceSnap } from '../core/models/face-snap.model'
+import { FaceSnapsService } from '../core/services/face-snaps.service'
 import { ActivatedRoute, RouterLink } from '@angular/router'
+import { Observable, tap } from 'rxjs'
 
 @Component({
   selector: 'app-single-face-snap',
@@ -22,31 +24,34 @@ import { ActivatedRoute, RouterLink } from '@angular/router'
     DatePipe,
     NgOptimizedImage,
     RouterLink,
+    AsyncPipe,
   ],
   templateUrl: './single-face-snap.component.html',
   styleUrl: './single-face-snap.component.scss',
 })
 export class SingleFaceSnapComponent implements OnInit {
   constructor(
-    private faceSnapsServices: FaceSnapsService,
+    private faceSnapsService: FaceSnapsService,
     private route: ActivatedRoute,
   ) {}
-  faceSnap!: FaceSnap
+  faceSnap$!: Observable<FaceSnap>
   buttonText!: string
 
   ngOnInit() {
     this.buttonText = 'Oh snap!'
     const faceSnapId = +this.route.snapshot.params['id']
-    this.faceSnap = this.faceSnapsServices.getFaceSnapById(faceSnapId)
+    this.faceSnap$ = this.faceSnapsService.getFaceSnapById(faceSnapId)
   }
 
-  onSnap() {
-    if (this.buttonText === 'Oh snap!') {
-      this.faceSnapsServices.snapFaceSnapById(this.faceSnap.id, 'snap')
-      this.buttonText = 'Oops, unSnap!'
+  onSnap(faceSnapId: number) {
+    if (this.buttonText === 'Oh Snap!') {
+      this.faceSnap$ = this.faceSnapsService
+        .snapFaceSnapById(faceSnapId, 'snap')
+        .pipe(tap(() => (this.buttonText = 'Oops, unSnap!')))
     } else {
-      this.faceSnapsServices.snapFaceSnapById(this.faceSnap.id, 'unsnap')
-      this.buttonText = 'Oh snap!'
+      this.faceSnap$ = this.faceSnapsService
+        .snapFaceSnapById(faceSnapId, 'unsnap')
+        .pipe(tap(() => (this.buttonText = 'Oh Snap!')))
     }
   }
 }
